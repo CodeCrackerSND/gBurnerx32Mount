@@ -1,0 +1,199 @@
+The call create tray icon
+
+0041E965   .  6A 00               PUSH 0 ; first parameter
+0041E967   .  B9 68874A00         MOV ECX,4A8768
+0041E96C   .  E8 0F090000         CALL 0041F280                                              ;  GCDTRAY.0041F280
+0041E971   .  8B4C24 08           MOV ECX,DWORD PTR SS:[ESP+8]
+0041E975   .  C746 1C 68874A00    MOV DWORD PTR DS:[ESI+1C],4A8768
+0041E97C   .  B8 01000000         MOV EAX,1
+0041E981   .  5E                  POP ESI
+0041E982   .  64:890D 00000000    MOV DWORD PTR FS:[0],ECX
+0041E989   .  83C4 10             ADD ESP,10
+0041E98C   .  C3                  RETN
+
+Executable modules, item 1
+ Base=00A70000
+
+a 0A8E975
+
+00A8E971   .  8B4C24 08                MOV ECX,DWORD PTR SS:[ESP+8]
+00A8E975   .  C746 1C 68874A00         MOV DWORD PTR DS:[ESI+1C],4A8768
+00A8E97C   .  B8 01000000              MOV EAX,1
+00A8E981   .  5E                       POP ESI
+00A8E982   .  64:890D 00000000         MOV DWORD PTR FS:[0],ECX
+00A8E989   .  83C4 10                  ADD ESP,10
+00A8E98C   .  C3                       RETN
+
+nop
+00441F81  |.  FF50 54       CALL DWORD PTR DS:[EAX+54]
+
+00433165  |.  59            POP ECX
+00433166  |.  59            POP ECX
+00433167  |.  85DB          TEST EBX,EBX
+00433169  |.  5B            POP EBX
+0043316A  |.  74 07         JE SHORT 00433173 ; to nop
+0043316C  |.  E8 1D000000   CALL 0043318E                            ;  GCDTRAY.0043318E
+00433171  |.  5F            POP EDI
+00433172  |.  C3            RETN
+
+00431FAF    8B45 EC         MOV EAX,DWORD PTR SS:[EBP-14]
+00431FB2    8B08            MOV ECX,DWORD PTR DS:[EAX] ; to jump 00431FC0
+00431FB4    8B09            MOV ECX,DWORD PTR DS:[ECX]
+00431FB6    894D 98         MOV DWORD PTR SS:[EBP-68],ECX
+00431FB9    50              PUSH EAX
+00431FBA    51              PUSH ECX
+00431FBB    E8 AA190000     CALL 0043396A                            ; GCDTRAY.0043396A
+00431FC0    59              POP ECX
+00431FC1    59              POP ECX
+00431FC2    C3              RETN
+
+So change:
+00431FB2   /EB 0C           JMP SHORT 00431FC0                       ; GCDTRAY.00431FC0
+
+00431FAF    8BE5            MOV ESP,EBP
+00431FB1    5D              POP EBP
+00431FB2    C3              RETN
+00431FB3    90              NOP
+
+
+------
+
+0042F4EB  |.  50                    PUSH EAX ; 0x10
+0042F4EC  |.  8B46 68               MOV EAX,DWORD PTR DS:[ESI+68]
+0042F4EF  |.  6A 01                 PUSH 1
+0042F4F1  |.  68 80000000           PUSH 80
+0042F4F6  |.  50                    PUSH EAX
+0042F4F7  |.  FF15 94A84A00         CALL DWORD PTR DS:[4AA894]               ;  USER32.LoadImageW
+0042F4FD  |.  8BD0                  MOV EDX,EAX
+0042F4FF  |.  85D2                  TEST EDX,EDX
+0042F501  |.  8915 308A4B00         MOV DWORD PTR DS:[4B8A30],EDX
+0042F507  |.  75 03                 JNZ SHORT 0042F50C                       ;  GCDTRAY.0042F50C
+0042F509  |.  5F                    POP EDI
+0042F50A  |.  5E                    POP ESI
+0042F50B  |.  C3                    RETN
+
+USER32.LoadImageW fails, why???
+
+
+0042F4EB  |.  50                    PUSH EAX
+0042F4EC  |.  8B46 68               MOV EAX,DWORD PTR DS:[ESI+68]
+0042F4EF  |.  6A 01                 PUSH 1
+0042F4F1  |.  68 80000000           PUSH 80
+0042F4F6  |.  50                    PUSH EAX
+0042F4F7  |.  FF15 94A84A00         CALL DWORD PTR DS:[4AA894]               ;  GCDTRAY.00430AEA
+0042F4FD  |.  8BD0                  MOV EDX,EAX
+0042F4FF  |.  85D2                  TEST EDX,EDX
+0042F501  |.  8915 308A4B00         MOV DWORD PTR DS:[4B8A30],EDX
+0042F507  |.  75 03                 JNZ SHORT 0042F50C                       ;  GCDTRAY.0042F50C
+0042F509  |.  5F                    POP EDI
+0042F50A  |.  5E                    POP ESI
+0042F50B  |.  C3                    RETN
+
+
+00431F91  |> \6A 0A         PUSH 0A
+00431F93  |.  58            POP EAX
+00431F94  |>  50            PUSH EAX
+00431F95  |.  FF75 9C       PUSH DWORD PTR SS:[EBP-64]
+00431F98  |.  56            PUSH ESI
+00431F99  |.  56            PUSH ESI                                 ; /pModule
+00431F9A  |.  FF15 B4614400 CALL DWORD PTR DS:[4461B4]               ; \GetModuleHandleA
+00431FA0  |.  50            PUSH EAX
+00431FA1  |.  E8 D1A20000   CALL 0043C277                            ;  GCDTRAY.0043C277
+00431FA6  |.  8945 A0       MOV DWORD PTR SS:[EBP-60],EAX            ;  GCDTRAY.0049A9B0
+00431FA9  |.  50            PUSH EAX
+00431FAA  |.  E8 0F110000   CALL 004330BE                            ;  GCDTRAY.004330BE
+
+
+
+00431EC7 >  55              PUSH EBP
+
+
+0012FFC0   004016E1  RETURN to gBurnerM.<ModuleEntryPoint>+118
+
+00431FAF    8B45 EC         MOV EAX,DWORD PTR SS:[EBP-14]
+00431FB2    8B08            MOV ECX,DWORD PTR DS:[EAX]
+00431FB4    8B09            MOV ECX,DWORD PTR DS:[ECX]
+00431FB6    894D 98         MOV DWORD PTR SS:[EBP-68],ECX
+00431FB9    50              PUSH EAX
+00431FBA    51              PUSH ECX
+00431FBB    E8 AA190000     CALL 0043396A                            ; GCDTRAY.0043396A
+00431FC0    59              POP ECX
+00431FC1    59              POP ECX
+00431FC2    C3              RETN
+
+---
+
+0043041B  |> \8B4D 08                MOV ECX,DWORD PTR SS:[EBP+8]             ;  GCDTRAY.004A8768
+0043041E  |.  FF55 14                CALL DWORD PTR SS:[EBP+14]
+00430421  |.  EB 3A                  JMP SHORT 0043045D                       ;  GCDTRAY.0043045D
+
+0041F6F0   .  56                     PUSH ESI
+
+00008074
+
+Stack SS:[0012FC4C]=004A8768 (GCDTRAY.004A8768)
+
+mov ecx,004A8768
+
+
+498768
+
+Stack SS:[0012FC4C]=004A8768 (GCDTRAY.004A8768)
+
+0042F190  /$  A1 E88D4A00            MOV EAX,DWORD PTR DS:[4A8DE8]
+0042F195  |.  85C0                   TEST EAX,EAX
+0042F197  |.  7E 02                  JLE SHORT 0042F19B                       ;  GCDTRAY.0042F19B
+0042F199  |>- EB FE                  JMP SHORT 0042F199                       ;  GCDTRAY.0042F199
+0042F19B  |>  FF0D E88D4A00          DEC DWORD PTR DS:[4A8DE8]
+0042F1A1  \.  C3                     RETN
+
+Original:
+DS:[004A8DE8]=FFFFFFFE
+
+0041F3E8   .  E8 A3FDFFFF   CALL 0041F190                            ;  GCDTRAY.0041F190
+
+---
+
+0042EA40  /$  83EC 4C                       SUB ESP,4C
+0042EA43  |.  57                            PUSH EDI
+0042EA44  |.  B9 13000000                   MOV ECX,13
+0042EA49  |.  33C0                          XOR EAX,EAX
+0042EA4B  |.  8D7C24 04                     LEA EDI,DWORD PTR SS:[ESP+4]
+0042EA4F  |.  F3:AB                         REP STOS DWORD PTR ES:[EDI]
+0042EA51  |.  8B4424 54                     MOV EAX,DWORD PTR SS:[ESP+54]
+0042EA55  |.  8B4C24 58                     MOV ECX,DWORD PTR SS:[ESP+58]
+0042EA59  |.  8B5424 5C                     MOV EDX,DWORD PTR SS:[ESP+5C]
+0042EA5D  |.  894424 08                     MOV DWORD PTR SS:[ESP+8],EAX
+0042EA61  |.  33C0                          XOR EAX,EAX
+0042EA63  |.  C74424 04 4D000000            MOV DWORD PTR SS:[ESP+4],4D
+0042EA6B  |.  66:A3 18884B00                MOV WORD PTR DS:[4B8818],AX
+0042EA71  |.  894424 28                     MOV DWORD PTR SS:[ESP+28],EAX
+0042EA75  |.  894424 2C                     MOV DWORD PTR SS:[ESP+2C],EAX
+0042EA79  |.  894424 30                     MOV DWORD PTR SS:[ESP+30],EAX
+0042EA7D  |.  8D4424 04                     LEA EAX,DWORD PTR SS:[ESP+4]
+0042EA81  |.  C74424 20 18884B00            MOV DWORD PTR SS:[ESP+20],4B8818
+0042EA89  |.  50                            PUSH EAX
+0042EA8A  |.  C74424 28 05010000            MOV DWORD PTR SS:[ESP+28],105
+0042EA92  |.  894C24 14                     MOV DWORD PTR SS:[ESP+14],ECX
+0042EA96  |.  C74424 20 01000000            MOV DWORD PTR SS:[ESP+20],1
+0042EA9E  |.  895424 44                     MOV DWORD PTR SS:[ESP+44],EDX
+0042EAA2  |.  C74424 3C 00080000            MOV DWORD PTR SS:[ESP+3C],800
+0042EAAA  |.  FF15 44A74A00                 CALL DWORD PTR DS:[4AA744]               ;  comdlg32.GetOpenFileNameW
+0042EAB0  |.  48                            DEC EAX
+0042EAB1  |.  5F                            POP EDI
+0042EAB2  |.  F7D8                          NEG EAX
+0042EAB4  |.  1BC0                          SBB EAX,EAX
+0042EAB6  |.  F7D0                          NOT EAX
+0042EAB8  |.  25 18884B00                   AND EAX,4B8818
+0042EABD  |.  83C4 4C                       ADD ESP,4C
+0042EAC0  \.  C3                            RETN
+
+0042F190      A1 E88D4A00            MOV EAX,DWORD PTR DS:[4A8DE8]
+0042F195  |.  85C0                   TEST EAX,EAX
+0042F197  |.  7E 02                  JLE SHORT 0042F19B                       ;  GCDTRAY.0042F19B
+0042F199    - EB FE                  JMP SHORT 0042F199                       ;  GCDTRAY.0042F199
+0042F19B      FF0D E88D4A00          DEC DWORD PTR DS:[4A8DE8]
+0042F1A1  \.  C3                     RETN
+
+
+

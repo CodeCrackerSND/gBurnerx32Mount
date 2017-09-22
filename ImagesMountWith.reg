@@ -1,0 +1,10 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\*\shell\gBurner]
+@="Mount with gBurner"
+"icon"="C:\\Program Files\\gBurner Virtual Drive\\gBurnerMount.exe,0"
+"AppliesTo"="System.FileName:\"*.iso\" OR System.FileName:\"*.uif\" OR System.FileName:\"*.nrg\""
+
+[HKEY_CLASSES_ROOT\*\shell\gBurner\command]
+@="C:\\Program Files\\gBurner Virtual Drive\\gBurnerMount.exe \"%1\""
+
